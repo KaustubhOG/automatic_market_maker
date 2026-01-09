@@ -4,7 +4,7 @@ use crate::error::AmmErrors;
 use anchor_spl::token::{self, Transfer, MintTo, TransferChecked};
 use std::cmp::min;
 use anchor_lang::prelude::*;
-use anchor_spl::{token::{}, token_interface::{Mint, TokenAccount, TokenInterface}};
+use anchor_spl::{token::{}, token_interface::{Mint, TokenAccount, TokenInterface,transfer_checked}};
 #[derive(Accounts)]
 pub struct AddLiquidity<'info> {
     #[account(mut)]
@@ -129,6 +129,7 @@ token::mint_to(CpiContext::new_with_signer(
 ),
 lp_tokens_to_mint // Mint LP tokens, not amount_a!
 )?;
+
 
     Ok(())
 }
