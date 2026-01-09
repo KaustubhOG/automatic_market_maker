@@ -1,9 +1,10 @@
 use crate::state::*;
+use crate::helper::sqrt::sqrt;
 use crate::error::AmmErrors;
 use anchor_spl::token::{self, Transfer, MintTo, TransferChecked};
 use std::cmp::min;
 use anchor_lang::prelude::*;
-use anchor_spl::{token::{self, TransferChecked}, token_interface::{Mint, TokenAccount, TokenInterface}};
+use anchor_spl::{token::{}, token_interface::{Mint, TokenAccount, TokenInterface}};
 #[derive(Accounts)]
 pub struct AddLiquidity<'info> {
     #[account(mut)]
@@ -73,7 +74,9 @@ pub fn handler(ctx: Context<AddLiquidity>, amount_a: u64, amount_b: u64) -> Resu
 
 let lp_tokens_to_mint = if is_first_deposit {
     // First deposit: geometric mean
-    sqrt(amount_a * amount_b)
+  
+    sqrt(amount_a*amount_b) 
+
 } else {
     // Subsequent: proportional to reserves, take minimum
     let reserve_a = ctx.accounts.vault_token_a.amount;
@@ -102,15 +105,18 @@ token::transfer_checked(CpiContext::new(ctx.accounts.token_program.to_account_in
     authority:ctx.accounts.user.to_account_info()
 }), amount_b, ctx.accounts.token_b_mint.decimals)?;
 
+let token_a_key = ctx.accounts.token_a_mint.key();
+let token_b_key = ctx.accounts.token_b_mint.key();
 
-//seeds
 let seeds = &[
     b"pool_state_account".as_ref(),
-    ctx.accounts.token_a_mint.key().as_ref(),
-    ctx.accounts.token_b_mint.key().as_ref(),
-    &[ctx.accounts.pool_state_account.bump] //
+    token_a_key.as_ref(),
+    token_b_key.as_ref(),
+    &[ctx.accounts.pool_state_account.bump]
 ];
 let signer_seeds = &[&seeds[..]];
+
+
 //mint
 token::mint_to(CpiContext::new_with_signer(
     ctx.accounts.token_program.to_account_info(),

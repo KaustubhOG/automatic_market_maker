@@ -1,9 +1,11 @@
 pub mod error;
+pub mod helper;
 pub mod instructions;
 pub mod state;
 
 pub use anchor_lang::prelude::*;
 pub use error::*;
+pub use helper::*;
 pub use instructions::*;
 
 declare_id!("3ZrN6UmFKvZbkuEwJUBGV1RxbGgeXDzu2UPLj48PPmfk");
