@@ -44,7 +44,7 @@ pub struct InitializePool<'info> {
         init,
         payer = authority,
         space = 8 + PoolState::INIT_SPACE,
-        seeds = [b"pool_state_account", authority.key().as_ref()],
+        seeds = [b"pool_state_account", token_a_mint.key().as_ref(), token_b_mint.key().as_ref()],
         bump
     )]
     pub pool_state_account: Account<'info, PoolState>,
