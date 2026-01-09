@@ -54,5 +54,13 @@ pub struct InitializePool<'info> {
 }
 
 pub fn handler(ctx: Context<InitializePool>, token_a: Pubkey, token_b: Pubkey) -> Result<()> {
+    let pool_state = &mut ctx.accounts.pool_state_account;
+
+    pool_state.authority = ctx.accounts.authority.key();
+    pool_state.token_a_mint = token_a;
+    pool_state.token_b_mint = token_b;
+    pool_state.vault_a = ctx.accounts.token_a_vault.key();
+    pool_state.vault_b = ctx.accounts.token_b_vault.key();
+    pool_state.lp_token_mint = ctx.accounts.lp_token_mint.key();
     Ok(())
 }
