@@ -27,10 +27,10 @@ pub mod automatic_market_maker {
         instructions::add_liquidity::handler(ctx, amount_a, amount_b)?;
         Ok(())
     }
-    // pub fn remove_liquidity(ctx: Context<RemoveLiquidity>) -> Result<()> {
-    //     instructions::remove_liquidity::handler()?;
-    //     Ok(())
-    // }
+    pub fn remove_liquidity(ctx: Context<RemoveLiquidity>, amount_lp: u64) -> Result<()> {
+        instructions::remove_liquidity::handler(ctx, amount_lp)?;
+        Ok(())
+    }
     // pub fn swap(ctx: Context<Swap>) -> Result<()> {
     //     instructions::swap::handler()?;
     //     Ok(())
