@@ -10,4 +10,5 @@ pub struct PoolState {
     pub vault_a: Pubkey,
     pub vault_b: Pubkey,
     pub authority: Pubkey,
-} 
+    pub bump: u8,
+}
