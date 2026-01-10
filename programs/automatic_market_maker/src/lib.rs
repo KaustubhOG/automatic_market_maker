@@ -31,8 +31,13 @@ pub mod automatic_market_maker {
         instructions::remove_liquidity::handler(ctx, amount_lp)?;
         Ok(())
     }
-    // pub fn swap(ctx: Context<Swap>) -> Result<()> {
-    //     instructions::swap::handler()?;
-    //     Ok(())
-    // }
+    pub fn swap(
+        ctx: Context<Swap>,
+        amount_to_swap: u64,
+        minimum_amoun_to_get_after_swap: u64,
+        swap_a_to_b: bool 
+    ) -> Result<()> {
+        instructions::swap::handler(ctx, amount_to_swap, minimum_amoun_to_get_after_swap,swap_a_to_b)?;
+        Ok(())
+    }
 }
