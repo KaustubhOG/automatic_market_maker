@@ -49,5 +49,40 @@ pub fn handler(
     minimum_amoun_to_get_after_swap: u64,
     swap_a_to_b: bool 
 ) -> Result<()> {
+ require!(amount_to_swap>0, AmmErrors::INCORRECT);
+  require!(minimum_amoun_to_get_after_swap>0, AmmErrors::INCORRECT);
+
+//we have to change the direction from where swap is happening 
+
+
+let (vault_in, vault_out, user_ata_in, user_ata_out, mint_in, mint_out) = if swap_a_to_b {
+    // Swapping A → B
+    (
+        &ctx.accounts.token_a_mint_vault_ata,  
+        &ctx.accounts.token_b_mint_vault_ata,
+        &ctx.accounts.token_b_mint_user_ata,
+        &ctx.accounts.token_a_mint_user_ata,  
+        &ctx.accounts.token_a_mint,
+        &ctx.accounts.token_b_mint,
+    )
+} else {
+    // Swapping B → A
+    (
+        &ctx.accounts.token_b_mint_vault_ata,  
+        &ctx.accounts.token_a_mint_vault_ata,
+        &ctx.accounts.token_a_mint_user_ata,
+        &ctx.accounts.token_b_mint_user_ata,  
+        &ctx.accounts.token_b_mint,
+        &ctx.accounts.token_a_mint,
+    )
+};
+
+let old_reserve_a=&ctx.accounts.token_a_mint_vault_ata.amount;
+let old_reserve_b=&ctx.accounts.token_b_mint_vault_ata.amount;
+
+// a * b = k
+
+// lets suppose the 
+
     Ok(())
 }
