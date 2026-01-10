@@ -82,7 +82,15 @@ let old_reserve_b=&ctx.accounts.token_b_mint_vault_ata.amount;
 
 // a * b = k
 
-// lets suppose the 
+//  lets suppose the swap happning a->b  so new.reserve.a * new.reserve.b = k 
+// and the amount we have to given amount_out is new.reserve.b-old.reserve.b 
+// simply it we will get the overall idea
+
+let amount_out=((old_reserve_b *amount_to_swap)/(old_reserve_a+amount_to_swap));
+
+require!(amount_out>=minimum_amoun_to_get_after_swap,AmmErrors::INCORRECT);
+
+
 
     Ok(())
 }
