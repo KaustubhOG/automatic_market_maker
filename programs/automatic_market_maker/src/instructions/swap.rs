@@ -1,7 +1,7 @@
 use crate::state::*;
 use crate::helper::sqrt::sqrt;
 use crate::error::AmmErrors;
-use anchor_spl::token::{};
+use anchor_spl::token::{TransferChecked, transfer_checked};
 use std::cmp::min;
 use anchor_lang::prelude::*;
 use anchor_spl::{token::{}, token_interface::{Mint, TokenAccount, TokenInterface}};
@@ -60,8 +60,8 @@ let (vault_in, vault_out, user_ata_in, user_ata_out, mint_in, mint_out) = if swa
     (
         &ctx.accounts.token_a_mint_vault_ata,  
         &ctx.accounts.token_b_mint_vault_ata,
-        &ctx.accounts.token_b_mint_user_ata,
-        &ctx.accounts.token_a_mint_user_ata,  
+        &ctx.accounts.token_a_mint_user_ata,
+        &ctx.accounts.token_b_mint_user_ata,  
         &ctx.accounts.token_a_mint,
         &ctx.accounts.token_b_mint,
     )
@@ -70,26 +70,49 @@ let (vault_in, vault_out, user_ata_in, user_ata_out, mint_in, mint_out) = if swa
     (
         &ctx.accounts.token_b_mint_vault_ata,  
         &ctx.accounts.token_a_mint_vault_ata,
-        &ctx.accounts.token_a_mint_user_ata,
-        &ctx.accounts.token_b_mint_user_ata,  
+        &ctx.accounts.token_b_mint_user_ata,
+        &ctx.accounts.token_a_mint_user_ata,  
         &ctx.accounts.token_b_mint,
         &ctx.accounts.token_a_mint,
     )
 };
 
-let old_reserve_a=&ctx.accounts.token_a_mint_vault_ata.amount;
-let old_reserve_b=&ctx.accounts.token_b_mint_vault_ata.amount;
+
 
 // a * b = k
 
 //  lets suppose the swap happning a->b  so new.reserve.a * new.reserve.b = k 
 // and the amount we have to given amount_out is new.reserve.b-old.reserve.b 
 // simply it we will get the overall idea
+let reserve_in = vault_in.amount;
+let reserve_out = vault_out.amount;
 
-let amount_out=((old_reserve_b *amount_to_swap)/(old_reserve_a+amount_to_swap));
+let amount_out = (amount_to_swap * reserve_out) / (reserve_in + amount_to_swap);
 
 require!(amount_out>=minimum_amoun_to_get_after_swap,AmmErrors::INCORRECT);
 
+//user ata -> vault 
+transfer_checked(CpiContext::new(ctx.accounts.token_program.to_account_info(),TransferChecked{
+    from : user_ata_in.to_account_info(),
+    mint:mint_in.to_account_info(),
+    to:vault_in.to_account_info(),
+    authority:ctx.accounts.user.to_account_info()
+}), amount_to_swap, mint_in.decimals)?;
+
+let token_a_mint=ctx.accounts.token_a_mint.key();
+let token_b_mint=ctx.accounts.token_b_mint.key();
+
+
+let seeds =&[b"pool_state_account",token_a_mint.as_ref(),token_b_mint.as_ref(),&[ctx.accounts.pool_state_account.bump]];
+let signer_seeds=&[&seeds[..]];
+
+//vault se user pe 
+transfer_checked(CpiContext::new_with_signer(ctx.accounts.token_program.to_account_info(), TransferChecked{
+    from : vault_out.to_account_info(),
+    mint:mint_out.to_account_info(),
+    to:user_ata_out.to_account_info(),
+    authority:ctx.accounts.pool_state_account.to_account_info()
+}, signer_seeds), amount_out, mint_out.decimals)?;
 
 
     Ok(())
